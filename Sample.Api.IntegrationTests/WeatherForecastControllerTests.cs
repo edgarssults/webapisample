@@ -45,7 +45,8 @@ public class WeatherForecastControllerTests
     public async Task Get_WithValidDate_ReturnsFiveForecastsForFollowingDays()
     {
         var response = await _client.GetAsync(
-            "/WeatherForecast?date=2026-09-16");
+            "/WeatherForecast?date=2026-09-16",
+            TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal(
@@ -53,7 +54,8 @@ public class WeatherForecastControllerTests
             response.Content.Headers.ContentType?.MediaType);
 
         var forecasts =
-            await response.Content.ReadFromJsonAsync<WeatherForecast[]>();
+            await response.Content.ReadFromJsonAsync<WeatherForecast[]>(
+                TestContext.Current.CancellationToken);
 
         Assert.NotNull(forecasts);
         Assert.Equal(5, forecasts.Length);
@@ -72,10 +74,12 @@ public class WeatherForecastControllerTests
     public async Task Get_WithSameDate_ReturnsSameForecast()
     {
         var firstResponse = await _client.GetFromJsonAsync<WeatherForecast[]>(
-            "/WeatherForecast?date=2026-09-16");
+            "/WeatherForecast?date=2026-09-16",
+            TestContext.Current.CancellationToken);
 
         var secondResponse = await _client.GetFromJsonAsync<WeatherForecast[]>(
-            "/WeatherForecast?date=2026-09-16");
+            "/WeatherForecast?date=2026-09-16",
+            TestContext.Current.CancellationToken);
 
         Assert.NotNull(firstResponse);
         Assert.NotNull(secondResponse);
@@ -85,12 +89,15 @@ public class WeatherForecastControllerTests
     [Fact]
     public async Task Get_WithoutDate_ReturnsFiveForecasts()
     {
-        var response = await _client.GetAsync("/WeatherForecast");
+        var response = await _client.GetAsync(
+            "/WeatherForecast",
+            TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var forecasts =
-            await response.Content.ReadFromJsonAsync<WeatherForecast[]>();
+            await response.Content.ReadFromJsonAsync<WeatherForecast[]>(
+                TestContext.Current.CancellationToken);
 
         Assert.NotNull(forecasts);
         Assert.Equal(5, forecasts.Length);
@@ -100,7 +107,8 @@ public class WeatherForecastControllerTests
     public async Task Get_WithInvalidDate_ReturnsBadRequest()
     {
         var response = await _client.GetAsync(
-            "/WeatherForecast?date=not-a-date");
+            "/WeatherForecast?date=not-a-date",
+            TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
